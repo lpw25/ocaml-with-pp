@@ -83,7 +83,13 @@ let print_warning = eprintf "%a:\n%s@." Camlp4.PreCast.Syntax.Loc.print
 
 (* Camlp4 parsing *)
 
+let init_camlp4 = lazy (
+  Camlp4.Register.iter_and_take_callbacks
+    (fun (name, callback)-> callback ())
+)
+
 let interface_file inputfile =
+  Lazy.force init_camlp4;
   let ic = open_in_bin inputfile in
   let cs = Stream.of_channel ic in
   let loc = Camlp4.PreCast.Syntax.Loc.mk inputfile in
@@ -100,6 +106,7 @@ let interface_file inputfile =
     apply_rewriters Config.ast_intf_magic_number ast
 
 let implementation_file inputfile =
+  Lazy.force init_camlp4;
   let ic = open_in_bin inputfile in
   let cs = Stream.of_channel ic in
   let loc = Camlp4.PreCast.Syntax.Loc.mk inputfile in
